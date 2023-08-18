@@ -7,7 +7,7 @@ using Suongmai.Services.CouponApi.Models.Dto;
 
 namespace Suongmai.Services.CouponApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/coupon")]
     [ApiController]
     public class CouponController : ControllerBase
     {
@@ -23,6 +23,7 @@ namespace Suongmai.Services.CouponApi.Controllers
         }
 
         [HttpGet]
+        [Route("GetAll")]
         public ResponseDto Get()
         {
             try
@@ -57,5 +58,92 @@ namespace Suongmai.Services.CouponApi.Controllers
             return _respone;
 
         }
+
+        [HttpGet]
+        [Route("GetByCode/{code}")]
+        public ResponseDto GetBycode(String code)
+        {
+            try
+            {
+                Coupon obj = _db.Coupons.First(o => o.CouponCode.ToLower() == code.ToLower());
+                _respone.result = _mapper.Map<CouponDto>(obj);
+            }
+            catch (Exception ex)
+            {
+                _respone.IsSuccess = false;
+                _respone.Message = ex.Message;
+
+            }
+            return _respone;
+
+        }
+
+        [HttpPost]
+        public ResponseDto Create([FromBody] CouponDto couponDto)
+        {
+            try
+            {
+                Coupon obj = _mapper.Map<Coupon>(couponDto);
+               _db.Coupons.Add(obj);
+                _db.SaveChanges();
+
+                _respone.result = obj;
+                _respone.Message = "Create successfully!!!";
+            }
+            catch (Exception ex)
+            {
+                _respone.IsSuccess = false;
+                _respone.Message = ex.Message;
+
+            }
+            return _respone;
+
+        }
+
+        [HttpPut]
+        public ResponseDto update([FromBody] CouponDto couponDto)
+        {
+            try
+            {
+                Coupon obj = _mapper.Map<Coupon>(couponDto);
+                _db.Coupons.Update(obj);
+                _db.SaveChanges();
+
+                _respone.result = obj;
+                _respone.Message = "Update successfully!!!";
+            }
+            catch (Exception ex)
+            {
+                _respone.IsSuccess = false;
+                _respone.Message = ex.Message;
+
+            }
+            return _respone;
+
+        }
+
+        [HttpDelete]
+        [Route("{id:int}")]
+        public ResponseDto Delete(int id)
+        {
+            try
+            {
+                Coupon obj = _db.Coupons.First(o => o.CouponId == id);
+                _respone.result = _mapper.Map<CouponDto>(obj);
+
+                _db.Coupons.Remove(obj);
+                _db.SaveChanges();
+                _respone.Message = "Delete successfully";
+            }
+            catch (Exception ex)
+            {
+                _respone.IsSuccess = false;
+                _respone.Message = ex.Message;
+
+            }
+            return _respone;
+
+        }
+
     }
 }
