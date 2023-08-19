@@ -11,11 +11,11 @@ namespace Suongmai.Services.CouponApi.Controllers
     [ApiController]
     public class CouponController : ControllerBase
     {
-        private readonly AppDBContext _db;
+        private readonly CouponDBContext _db;
         private ResponseDto _respone;
         private IMapper _mapper;
 
-        public CouponController(AppDBContext DB, IMapper mapper)
+        public CouponController(CouponDBContext DB, IMapper mapper)
         {
             _db = DB;   
             _respone = new ResponseDto();

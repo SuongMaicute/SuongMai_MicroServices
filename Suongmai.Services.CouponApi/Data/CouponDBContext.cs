@@ -3,10 +3,10 @@ using Suongmai.Services.CouponApi.Models;
 
 namespace Suongmai.Services.CouponApi.Data
 {
-    public class AppDBContext :DbContext
+    public class CouponDBContext :DbContext
     {
 
-        public AppDBContext( DbContextOptions<AppDBContext> options) : base(options)
+        public CouponDBContext( DbContextOptions<CouponDBContext> options) : base(options)
         {
             
         }

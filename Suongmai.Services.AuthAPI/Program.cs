@@ -1,10 +1,11 @@
 
-using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Suongmai.Services.CouponApi.Data;
+using Suongmai.Services.AuthAPI.Data;
+using Suongmai.Services.AuthAPI.Models;
 using System;
 
-namespace Suongmai.Services.CouponApi
+namespace Suongmai.Services.CouponAPI
 {
     public class Program
     {
@@ -13,15 +14,14 @@ namespace Suongmai.Services.CouponApi
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddDbContext<CouponDBContext>(
+            builder.Services.AddDbContext<AuthAPIContext>(
                 option =>
                 {
                     option.UseSqlServer(builder.Configuration.GetConnectionString("MyDB"));
                 });
-            // add auto mapper to our services 
-            IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
-            builder.Services.AddSingleton(mapper);
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Apisettings:JwtOptions"));
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AuthAPIContext>()
+    .AddDefaultTokenProviders();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -44,13 +44,14 @@ namespace Suongmai.Services.CouponApi
 
             app.MapControllers();
             ApplyMigration();
+
             app.Run();
 
             void ApplyMigration()
             {
                 using (var scope = app.Services.CreateScope())
                 {
-                    var _db = scope.ServiceProvider.GetRequiredService<CouponDBContext>();
+                    var _db = scope.ServiceProvider.GetRequiredService<AuthAPIContext>();
 
                     if (_db.Database.GetPendingMigrations().Count() > 0)
                     {
@@ -58,6 +59,7 @@ namespace Suongmai.Services.CouponApi
                     }
                 }
             }
+
         }
     }
 }

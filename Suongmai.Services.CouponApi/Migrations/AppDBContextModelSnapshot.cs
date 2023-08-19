@@ -10,7 +10,7 @@ using Suongmai.Services.CouponApi.Data;
 
 namespace Suongmai.Services.CouponApi.Migrations
 {
-    [DbContext(typeof(AppDBContext))]
+    [DbContext(typeof(CouponDBContext))]
     partial class AppDBContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

@@ -21,8 +21,11 @@ namespace Mango.web.Service
         }
         public async Task<ResponseDto> SendAsync(RequestDto requestDto)
         {
-            try
-            {
+            String url = requestDto.Url;
+            ApiType alo = requestDto.ApiType;
+            object data = requestDto.Data;
+           /* try
+            {*/
                 HttpClient client = _httpClientFactory.CreateClient("MangoAPI");
                 HttpRequestMessage message = new();
                 message.Headers.Add("Accept", "application/json");
@@ -51,7 +54,7 @@ namespace Mango.web.Service
                         break;
 
                 }
-
+                
                 apiResponse = await client.SendAsync(message);
                 switch (apiResponse.StatusCode)
                 {
@@ -82,16 +85,18 @@ namespace Mango.web.Service
                     default:
                         var apiContent = await apiResponse.Content.ReadAsStringAsync();
                         var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
-                        return apiResponseDto;
+                    var dataInrespone = apiResponseDto.result;
+
+						return apiResponseDto;
                 }
-            }catch(Exception e)
+         /*   }catch(Exception e)
             {
                 return new ResponseDto()
                 {
                     Message = e.Message,
                     IsSuccess = false
                 };
-            }
+            }*/
         }
     }
 }

@@ -13,7 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{7B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Suongmai.Services.CouponApi", "Suongmai.Services.CouponApi\Suongmai.Services.CouponApi.csproj", "{86F2B0D2-7925-42FF-AF87-2A854141891F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mango.web", "Mango.web\Mango.web.csproj", "{E5DC0B3D-B9DA-4237-8C4E-F371F434776D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mango.web", "Mango.web\Mango.web.csproj", "{E5DC0B3D-B9DA-4237-8C4E-F371F434776D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Suongmai.Services.AuthAPI", "Suongmai.Services.AuthAPI\Suongmai.Services.AuthAPI.csproj", "{DE67736F-33CD-45FD-81DC-E23EDF4D25B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,10 @@ Global
 		{E5DC0B3D-B9DA-4237-8C4E-F371F434776D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5DC0B3D-B9DA-4237-8C4E-F371F434776D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5DC0B3D-B9DA-4237-8C4E-F371F434776D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE67736F-33CD-45FD-81DC-E23EDF4D25B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE67736F-33CD-45FD-81DC-E23EDF4D25B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE67736F-33CD-45FD-81DC-E23EDF4D25B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE67736F-33CD-45FD-81DC-E23EDF4D25B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -36,6 +42,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{86F2B0D2-7925-42FF-AF87-2A854141891F} = {7B12A83A-0511-4FB6-A44C-862F3B6BA414}
 		{E5DC0B3D-B9DA-4237-8C4E-F371F434776D} = {60E541CA-A2AB-4610-A4EE-1A7B4451A82D}
+		{DE67736F-33CD-45FD-81DC-E23EDF4D25B1} = {7B12A83A-0511-4FB6-A44C-862F3B6BA414}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D55ACC51-1A59-4285-8E19-732117F3E264}

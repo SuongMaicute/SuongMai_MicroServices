@@ -11,7 +11,7 @@ using Suongmai.Services.CouponApi.Data;
 
 namespace Suongmai.Services.CouponApi.Migrations
 {
-    [DbContext(typeof(AppDBContext))]
+    [DbContext(typeof(CouponDBContext))]
     [Migration("20230816132855_CoupponDta")]
     partial class CoupponDta
     {
