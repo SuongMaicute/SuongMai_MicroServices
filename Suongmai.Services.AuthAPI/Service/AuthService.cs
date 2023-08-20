@@ -22,9 +22,34 @@ namespace Suongmai.Services.AuthAPI.Service
             
         }
 
-        public Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
+        public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
         {
-            throw new NotImplementedException();
+            var user = _db.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == loginRequestDto.Username.ToLower() );
+            bool isvalid = await _useManager.CheckPasswordAsync(user, loginRequestDto.Password);
+            if (user == null || isvalid == false)
+            {
+                return new LoginResponseDto() { 
+                    User = null, Token =""
+                };
+            }
+            // if user was found, generate jwt token
+
+            UserDto userDto = new UserDto()
+            {
+                Email = user.Email,
+                ID = user.Id,
+                Name = user.Name,
+                PhoneNumber = user.PhoneNumber
+            };
+
+            LoginResponseDto loginResponse = new LoginResponseDto()
+            {
+                User = userDto,
+                Token =""
+            };
+
+            return loginResponse;
+        
         }
 
         public async Task<string> Register(RegistrationRequestDto registrationRequestDto)
@@ -60,9 +85,8 @@ namespace Suongmai.Services.AuthAPI.Service
             }
             catch(Exception e)
             {
-
+                return  "";
             };
-            return  "Error encounter";
         }
     }
 }

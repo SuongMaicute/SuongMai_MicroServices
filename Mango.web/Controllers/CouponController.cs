@@ -19,8 +19,6 @@ namespace Mango.web.Controllers
             ResponseDto? response = await _couponService.GetAllCouponAsync();
              if (response != null && response.IsSuccess) {
 				list = JsonConvert.DeserializeObject<List<CouponDto>>(Convert.ToString(response.result));
-				
-
 			}
             else
             {

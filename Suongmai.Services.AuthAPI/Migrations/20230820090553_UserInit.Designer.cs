@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Suongmai.Services.AuthAPI.Data;
 
@@ -11,9 +12,11 @@ using Suongmai.Services.AuthAPI.Data;
 namespace Suongmai.Services.AuthAPI.Migrations
 {
     [DbContext(typeof(AuthAPIContext))]
-    partial class AuthAPIContextModelSnapshot : ModelSnapshot
+    [Migration("20230820090553_UserInit")]
+    partial class UserInit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
