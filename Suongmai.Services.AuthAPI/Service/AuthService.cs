@@ -12,14 +12,34 @@ namespace Suongmai.Services.AuthAPI.Service
         private readonly AuthAPIContext _db;
         private readonly UserManager<ApplicationUser> _useManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-
-        public AuthService( AuthAPIContext db,
+        private readonly IJwtTokenGenerator _jwtTokenGenerator;
+        public AuthService( AuthAPIContext db,IJwtTokenGenerator Jwt,
             UserManager<ApplicationUser> usermanager, RoleManager<IdentityRole> roleManager)
         {
             _db = db;
             _useManager = usermanager;
             _roleManager = roleManager;
+            _jwtTokenGenerator = Jwt;
             
+        }
+
+        public async Task<bool> AssingRole(string email, string roleName)
+        {
+
+            var user = _db.ApplicationUsers.FirstOrDefault(u => u.Email.ToLower() == email.ToLower());
+            if (user != null)
+            {
+                if (! _roleManager.RoleExistsAsync(roleName).GetAwaiter().GetResult())
+                {
+                    // create role if not exist 
+                    _roleManager.CreateAsync(new IdentityRole(roleName)).GetAwaiter().GetResult();
+                };
+                await _useManager.AddToRoleAsync(user, roleName);
+                return true;
+
+            }
+            return false;
+
         }
 
         public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
@@ -34,6 +54,7 @@ namespace Suongmai.Services.AuthAPI.Service
             }
             // if user was found, generate jwt token
 
+            var token = _jwtTokenGenerator.GenerateToken(user);
             UserDto userDto = new UserDto()
             {
                 Email = user.Email,
@@ -45,7 +66,7 @@ namespace Suongmai.Services.AuthAPI.Service
             LoginResponseDto loginResponse = new LoginResponseDto()
             {
                 User = userDto,
-                Token =""
+                Token =token
             };
 
             return loginResponse;

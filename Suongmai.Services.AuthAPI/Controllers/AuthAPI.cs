@@ -49,5 +49,21 @@ namespace Suongmai.Services.AuthAPI.Controllers
             return Ok(_response);
         }
 
+        [HttpPost("AssignRole")]
+        public async Task<IActionResult> AssignRole([FromBody] RegistrationRequestDto model)
+        {
+
+            var AssignOK = await _authService.AssingRole(model.Email, model.Role.ToUpper());
+            if (!AssignOK)
+            {
+                _response.IsSuccess = false;
+                _response.Message = "User already exist !!!";
+                return BadRequest(_response);
+            }
+
+           
+            return Ok(_response);
+        }
+
     }
 }

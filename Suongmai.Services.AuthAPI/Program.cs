@@ -7,7 +7,7 @@ using Suongmai.Services.AuthAPI.Service;
 using Suongmai.Services.AuthAPI.Service.IService;
 using System;
 
-namespace Suongmai.Services.CouponAPI
+namespace Suongmai.Services.AuthAPI
 {
     public class Program
     {

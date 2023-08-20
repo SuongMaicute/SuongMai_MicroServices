@@ -6,6 +6,6 @@ namespace Suongmai.Services.AuthAPI.Service.IService
     {
         Task<string> Register(RegistrationRequestDto registrationRequestDto);
         Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto);
-
+        Task<bool> AssingRole(String email, string roleName);
     }
 }
