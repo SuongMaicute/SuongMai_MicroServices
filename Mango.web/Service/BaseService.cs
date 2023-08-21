@@ -85,6 +85,8 @@ namespace Mango.web.Service
                     default:
                         var apiContent = await apiResponse.Content.ReadAsStringAsync();
                         var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
+                    var mess = apiResponseDto.Message;
+                    var status = apiResponseDto.IsSuccess;
                     var dataInrespone = apiResponseDto.result;
 
 						return apiResponseDto;
