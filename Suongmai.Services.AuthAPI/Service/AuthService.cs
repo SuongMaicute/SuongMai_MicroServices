@@ -52,9 +52,10 @@ namespace Suongmai.Services.AuthAPI.Service
                     User = null, Token =""
                 };
             }
+            var roles = await _useManager.GetRolesAsync(user);
             // if user was found, generate jwt token
 
-            var token = _jwtTokenGenerator.GenerateToken(user);
+            var token = _jwtTokenGenerator.GenerateToken(user, roles);
             UserDto userDto = new UserDto()
             {
                 Email = user.Email,

@@ -1,5 +1,7 @@
 ﻿using Mango.web.Models;
 using Mango.web.Service.IService;
+using Mango.web.Util;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -26,7 +28,7 @@ namespace Mango.web.Controllers
             }
             return View(list);
         }
-
+		[Authorize( Roles = SD.RoleAdmin)]
 		public async Task<IActionResult> CouponCreate()
 		{
             CouponDto coupon = new CouponDto();	

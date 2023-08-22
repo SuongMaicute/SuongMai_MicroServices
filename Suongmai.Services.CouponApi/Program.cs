@@ -1,8 +1,12 @@
 
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Suongmai.Services.CouponApi.Data;
 using System;
+using System.Text;
 
 namespace Suongmai.Services.CouponApi
 {
@@ -26,7 +30,51 @@ namespace Suongmai.Services.CouponApi
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(option =>
+            {
+                option.AddSecurityDefinition(name: JwtBearerDefaults.AuthenticationScheme, securityScheme: new OpenApiSecurityScheme { 
+                    Name = "Authorization", 
+                    Description = "Enter string as follow : Bearer Generated-JWT-Token",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+				});
+                option.AddSecurityRequirement( new OpenApiSecurityRequirement
+                {
+                    { new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = JwtBearerDefaults.AuthenticationScheme
+                        }
+                    }, new string[]{}
+                    }
+                });
+            }
+            ) ;
+
+			var secret = builder.Configuration.GetValue<string>("Apisettings:Secret");
+            var Issuer = builder.Configuration.GetValue<string>("Apisettings:Issuer");
+            var Audience = builder.Configuration.GetValue<string>("Apisettings:Audience");
+            var key =Encoding.ASCII.GetBytes(secret);
+            builder.Services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(x=> {
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = Issuer,
+                    ValidAudience = Audience,
+                    ValidateAudience = true,
+                };
+            });
+            builder.Services.AddAuthorization();
 
             var app = builder.Build();
 
@@ -38,7 +86,7 @@ namespace Suongmai.Services.CouponApi
             }
 
             app.UseHttpsRedirection();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

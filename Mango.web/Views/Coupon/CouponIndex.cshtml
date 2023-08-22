@@ -33,10 +33,12 @@
 				</tr>
 			</thead>
 			<tbody>
-				@foreach (var item in Model)
+				@if (Model != null)
 				{
-					<tr>
-						<td>
+					@foreach (var item in Model)
+					{
+						<tr>
+							<td>
 							@item.CouponCode
 						</td>
 						<td>
@@ -51,7 +53,7 @@
 							</a>
 						</td>
 					</tr>
-				}
+				}}
 			</tbody>
 		</table>
 

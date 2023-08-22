@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Suongmai.Services.CouponApi.Data;
@@ -9,6 +10,7 @@ namespace Suongmai.Services.CouponApi.Controllers
 {
     [Route("api/coupon")]
     [ApiController]
+    [Authorize]
     public class CouponController : ControllerBase
     {
         private readonly CouponDBContext _db;

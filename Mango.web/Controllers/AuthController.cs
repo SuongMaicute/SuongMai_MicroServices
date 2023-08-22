@@ -83,6 +83,10 @@ namespace Mango.web.Controllers
                     return RedirectToAction(nameof(Login));
 
                 }
+                else
+                {
+                    TempData["error"] = respone.Message;
+                }
 
                 var RoleList = new List<SelectListItem>() {
 
@@ -97,11 +101,12 @@ namespace Mango.web.Controllers
         }
 
 
-        public IActionResult LogOut()
+        public async Task <IActionResult> LogOut()
         {
-            RegistrationRequestDto registrationRequestDto = new RegistrationRequestDto();
+            await HttpContext.SignOutAsync();
+            _tokenProvider.ClearToken();
 
-            return View();
+            return RedirectToAction("Index", "Home");
         }
 
         private async Task SignInUser (LoginResponseDto model)
@@ -121,7 +126,9 @@ namespace Mango.web.Controllers
 
             identity.AddClaim(new Claim(ClaimTypes.Name,
                 jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Email).Value));
-
+         
+            identity.AddClaim(new Claim(ClaimTypes.Role,
+                jwt.Claims.FirstOrDefault(u => u.Type =="role").Value));
 
             var principal = new ClaimsPrincipal(identity);
               
