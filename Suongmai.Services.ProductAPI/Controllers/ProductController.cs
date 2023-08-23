@@ -10,7 +10,7 @@ namespace Suongmai.Services.ProductApi.Controllers
 {
     [Route("api/product")]
     [ApiController]
-   // [Authorize]
+    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly ProductDBContext _db;
@@ -81,7 +81,8 @@ namespace Suongmai.Services.ProductApi.Controllers
         }
 
         [HttpPost]
-        public ResponseDto Create([FromBody] Product ProductDto)
+		[Authorize(Roles = "ADMIN")]
+		public ResponseDto Create([FromBody] Product ProductDto)
         {
             try
             {
@@ -103,7 +104,8 @@ namespace Suongmai.Services.ProductApi.Controllers
         }
 
         [HttpPut]
-        public ResponseDto update([FromBody] ProductDto ProductDto)
+		[Authorize(Roles = "ADMIN")]
+		public ResponseDto update([FromBody] ProductDto ProductDto)
         {
             try
             {
@@ -126,6 +128,7 @@ namespace Suongmai.Services.ProductApi.Controllers
 
         [HttpDelete]
         [Route("{id:int}")]
+        [Authorize(Roles ="ADMIN")]
         public ResponseDto Delete(int id)
         {
             try

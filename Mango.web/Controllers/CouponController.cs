@@ -28,7 +28,8 @@ namespace Mango.web.Controllers
             }
             return View(list);
         }
-		[Authorize( Roles = SD.RoleAdmin)]
+		
+
 		public async Task<IActionResult> CouponCreate()
 		{
             CouponDto coupon = new CouponDto();	
