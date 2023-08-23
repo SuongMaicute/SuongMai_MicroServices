@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Suongmai.Services.CouponApi.Data;
+using Suongmai.Services.CouponApi.Extentions;
 using System;
 using System.Text;
 
@@ -54,26 +55,7 @@ namespace Suongmai.Services.CouponApi
             }
             ) ;
 
-			var secret = builder.Configuration.GetValue<string>("Apisettings:Secret");
-            var Issuer = builder.Configuration.GetValue<string>("Apisettings:Issuer");
-            var Audience = builder.Configuration.GetValue<string>("Apisettings:Audience");
-            var key =Encoding.ASCII.GetBytes(secret);
-            builder.Services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-            }).AddJwtBearer(x=> {
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
-                    ValidIssuer = Issuer,
-                    ValidAudience = Audience,
-                    ValidateAudience = true,
-                };
-            });
+            builder.AppAuthentication();
             builder.Services.AddAuthorization();
 
             var app = builder.Build();

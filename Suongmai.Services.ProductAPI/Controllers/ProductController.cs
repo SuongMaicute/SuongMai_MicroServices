@@ -2,22 +2,22 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Suongmai.Services.CouponApi.Data;
-using Suongmai.Services.CouponApi.Models;
-using Suongmai.Services.CouponApi.Models.Dto;
+using Suongmai.Services.ProductAPI.Data;
+using Suongmai.Services.ProductAPI.Models;
+using Suongmai.Services.ProductAPI.Models.Dto;
 
-namespace Suongmai.Services.CouponApi.Controllers
+namespace Suongmai.Services.ProductApi.Controllers
 {
-    [Route("api/coupon")]
+    [Route("api/product")]
     [ApiController]
-    [Authorize]
-    public class CouponController : ControllerBase
+   // [Authorize]
+    public class ProductController : ControllerBase
     {
-        private readonly CouponDBContext _db;
+        private readonly ProductDBContext _db;
         private ResponseDto _respone;
         private IMapper _mapper;
 
-        public CouponController(CouponDBContext DB, IMapper mapper)
+        public ProductController(ProductDBContext DB, IMapper mapper)
         {
             _db = DB;   
             _respone = new ResponseDto();
@@ -30,8 +30,8 @@ namespace Suongmai.Services.CouponApi.Controllers
         {
             try
             {
-                IEnumerable<Coupon> objList = _db.Coupons.ToList();
-                _respone.result = _mapper.Map<IEnumerable<CouponDto>>(objList);
+                IEnumerable<Product> objList = _db.Products.ToList();
+                _respone.result = _mapper.Map<IEnumerable<ProductDto>>(objList);
 
             }catch (Exception ex)
             {
@@ -48,8 +48,8 @@ namespace Suongmai.Services.CouponApi.Controllers
         {
             try
             {
-                Coupon obj = _db.Coupons.First( o =>o.CouponId ==id);
-                _respone.result = _mapper.Map<CouponDto>(obj);
+                Product obj = _db.Products.First( o =>o.ProductId ==id);
+                _respone.result = _mapper.Map<ProductDto>(obj);
             }
             catch (Exception ex)
             {
@@ -62,13 +62,13 @@ namespace Suongmai.Services.CouponApi.Controllers
         }
 
         [HttpGet]
-        [Route("GetByCode/{code}")]
-        public ResponseDto GetBycode(String code)
+        [Route("GetByName/{name}")]
+        public ResponseDto GetBycode(String name)
         {
             try
             {
-                Coupon obj = _db.Coupons.First(o => o.CouponCode.ToLower() == code.ToLower());
-                _respone.result = _mapper.Map<CouponDto>(obj);
+                Product obj = _db.Products.First(o => o.Name.ToLower() == name.ToLower());
+                _respone.result = _mapper.Map<ProductDto>(obj);
             }
             catch (Exception ex)
             {
@@ -81,13 +81,12 @@ namespace Suongmai.Services.CouponApi.Controllers
         }
 
         [HttpPost]
-        [Authorize (Roles ="ADMIN")]
-        public ResponseDto Create([FromBody] CouponDto couponDto)
+        public ResponseDto Create([FromBody] Product ProductDto)
         {
             try
             {
-                Coupon obj = _mapper.Map<Coupon>(couponDto);
-               _db.Coupons.Add(obj);
+                Product obj = _mapper.Map<Product>(ProductDto);
+               _db.Products.Add(obj);
                 _db.SaveChanges();
 
                 _respone.result = obj;
@@ -104,13 +103,12 @@ namespace Suongmai.Services.CouponApi.Controllers
         }
 
         [HttpPut]
-		[Authorize(Roles = "ADMIN")]
-		public ResponseDto update([FromBody] CouponDto couponDto)
+        public ResponseDto update([FromBody] ProductDto ProductDto)
         {
             try
             {
-                Coupon obj = _mapper.Map<Coupon>(couponDto);
-                _db.Coupons.Update(obj);
+                Product obj = _mapper.Map<Product>(ProductDto);
+                _db.Products.Update(obj);
                 _db.SaveChanges();
 
                 _respone.result = obj;
@@ -127,16 +125,15 @@ namespace Suongmai.Services.CouponApi.Controllers
         }
 
         [HttpDelete]
-		[Authorize(Roles = "ADMIN")]
-		[Route("{id:int}")]
+        [Route("{id:int}")]
         public ResponseDto Delete(int id)
         {
             try
             {
-                Coupon obj = _db.Coupons.First(o => o.CouponId == id);
-                _respone.result = _mapper.Map<CouponDto>(obj);
+                Product obj = _db.Products.First(o => o.ProductId == id);
+                _respone.result = _mapper.Map<ProductDto>(obj);
 
-                _db.Coupons.Remove(obj);
+                _db.Products.Remove(obj);
                 _db.SaveChanges();
                 _respone.Message = "Delete successfully";
             }
