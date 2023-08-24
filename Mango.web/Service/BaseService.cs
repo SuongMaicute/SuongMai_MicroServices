@@ -25,8 +25,8 @@ namespace Mango.web.Service
             String url = requestDto.Url;
             ApiType alo = requestDto.ApiType;
             object data = requestDto.Data;
-           /* try
-            {*/
+            try
+            {
                 HttpClient client = _httpClientFactory.CreateClient("MangoAPI");
                 HttpRequestMessage message = new();
                 message.Headers.Add("Accept", "application/json");
@@ -91,23 +91,24 @@ namespace Mango.web.Service
                             IsSuccess = false,
                             Message = "Internal Server Error"
                         };
-                    default:
-                        var apiContent = await apiResponse.Content.ReadAsStringAsync();
-                        var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
-                    var mess = apiResponseDto.Message;
-                    var status = apiResponseDto.IsSuccess;
-                    var dataInrespone = apiResponseDto.result;
-
-						return apiResponseDto;
+                 
+                          default:
+                              var apiContent = await apiResponse.Content.ReadAsStringAsync();
+                              var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
+                          var messalo = apiResponseDto.Message;
+                          var status = apiResponseDto.IsSuccess;
+                          var dataInrespone = apiResponseDto.result;
+                        
+                        return apiResponseDto;
                 }
-         /*   }catch(Exception e)
+            }catch(Exception e)
             {
                 return new ResponseDto()
                 {
                     Message = e.Message,
                     IsSuccess = false
                 };
-            }*/
+            }
         }
     }
 }

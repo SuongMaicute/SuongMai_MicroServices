@@ -48,7 +48,7 @@ namespace Suongmai.Services.ProductApi.Controllers
         {
             try
             {
-                Product obj = _db.Products.First( o =>o.ProductId ==id);
+                Product obj = _db.Products.FirstOrDefault( o =>o.ProductId ==id);
                 _respone.result = _mapper.Map<ProductDto>(obj);
             }
             catch (Exception ex)

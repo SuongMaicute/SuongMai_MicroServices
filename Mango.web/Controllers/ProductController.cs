@@ -47,8 +47,47 @@ namespace Mango.web.Controllers
                 ResponseDto? response = await _productService.CreateProductAsync(product);
                 if (response != null && response.IsSuccess)
                 {
-                    TempData["success"] = "Create Coupon successfully";
-                    return RedirectToAction(nameof(IndexAsync));
+                    var mess = response.Message;
+                    var data = response.result;
+                    TempData["success"] = "Create Product successfully";
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    TempData["error"] = response.Message;
+                }
+            }
+            return View(product);
+        }
+
+        public async Task<IActionResult> EditProduct(int productID)
+        {
+            ResponseDto? response = await _productService.GetProductByIdAsync(productID);
+
+            if (response != null && response.IsSuccess)
+            {
+               // var alo= response.Message;
+                ProductDto? product = JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(response.result));
+               // var id = product.Name;
+                return View(product);
+
+            }
+            else
+            {
+                TempData["error"] = response.Message;
+            }
+            return NotFound();
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditProduct(ProductDto product)
+        {
+            if (ModelState.IsValid)
+            {
+                ResponseDto? response = await _productService.UpdateProductAsync(product);
+                if (response != null && response.IsSuccess)
+                {
+                    TempData["success"] = "Update Product successfully";
+                    return RedirectToAction(nameof(Index));
                 }
                 else
                 {
@@ -82,8 +121,8 @@ namespace Mango.web.Controllers
             ResponseDto? response = await _productService.DeleteProductAsync(product.ProductId);
             if (response != null && response.IsSuccess)
             {
-                TempData["success"] = "Delete Coupon successfully";
-                return RedirectToAction(nameof(IndexAsync));
+                TempData["success"] = "Delete product successfully";
+                return RedirectToAction(nameof(Index));
 
             }
             else

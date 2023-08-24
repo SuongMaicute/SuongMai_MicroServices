@@ -1,5 +1,5 @@
 ﻿@model ProductDto
-<form asp-action="ProductEdit" enctype="multipart/form-data">
+<form asp-action="EditProduct" enctype="multipart/form-data">
     <br />
     <div class="container border p-3">
         <h1 class="text-white text-center">Edit Product</h1>
@@ -48,7 +48,7 @@
                     </div>
                     <div class="col-5 offset-2">
 
-                        <a asp-action="ProductIndex" class="btn-primary btn form-control ">Back to List</a>
+                        <a asp-action="Index" class="btn-primary btn form-control ">Back to List</a>
                     </div>
                     <div class="col-5">
                         <input type="submit" value="Update" class="btn btn-success form-control" />
@@ -57,7 +57,7 @@
                 </div>
             </div>
             <div class="col-2">
-                <img src="@Model.ImageUrl" class="w-100" alt="" />
+                <img src = "@Model.ImageUrl" class="w-100" alt="" />
             </div>
         </div>
     </div>
