@@ -12,7 +12,7 @@ namespace Suongmai.Services.ProductAPI
         {
             var mappingConfig = new MapperConfiguration(config =>
             {
-                config.CreateMap<CartHeader, CartDetailDto>().ReverseMap();
+                config.CreateMap<CartHeader, CartHeaderDto>().ReverseMap();
                 config.CreateMap<CartDetail, CartDetailDto>().ReverseMap();
             }
                 );
