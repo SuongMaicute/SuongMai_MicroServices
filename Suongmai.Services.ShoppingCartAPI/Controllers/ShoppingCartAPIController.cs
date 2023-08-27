@@ -8,6 +8,7 @@ using Suongmai.Services.ShoppingCartAPI.Models.Dto;
 using Suongmai.Services.ShoppingCartAPI.Service.IService;
 using System;
 using System.Globalization;
+using System.Reflection.Metadata;
 
 namespace Suongmai.Services.ShoppingCartAPI.Controllers
 {
@@ -19,15 +20,17 @@ namespace Suongmai.Services.ShoppingCartAPI.Controllers
         private IMapper _mapper;
         private readonly CartDBContext _db;
         private IProductService _productService;
-        /*private ICouponService _couponService;
-        private IConfiguration _configuration;
+        private ICouponService _couponService;
+        /*private IConfiguration _configuration;
         private readonly IMessageBus _messageBus;*/
-        public ShoppingCartAPIController(CartDBContext db,IMapper mapper, IProductService productService)
+        public ShoppingCartAPIController(CartDBContext db,IMapper mapper, IProductService productService, 
+            ICouponService coupon)
         {
             _db = db;            
             this._response = new ResponseDto();
             _mapper = mapper;
             _productService = productService;
+            _couponService = coupon;
             
         }
 
@@ -99,6 +102,18 @@ namespace Suongmai.Services.ShoppingCartAPI.Controllers
                 {
                     item.Product = productDtos.FirstOrDefault(u => u.ProductId == item.ProductId);    
                     cart.CartHeader.CartTotal += (item.Count * item.Product.Price);
+                
+                }
+                // apply coupon
+                if (!string.IsNullOrEmpty(cart.CartHeader.CouponCode))
+                {
+                    CouponDto coupon = await _couponService.GetCoupon(cart.CartHeader.CouponCode);
+                    if (coupon!= null && cart.CartHeader.CartTotal>= coupon.MinAmount)
+                    {
+                        cart.CartHeader.CartTotal -= coupon.DiscountAmount;
+                        cart.CartHeader.Discount = coupon.DiscountAmount;
+
+                    }
                 }
 
                 _response.result = cart;
@@ -129,6 +144,51 @@ namespace Suongmai.Services.ShoppingCartAPI.Controllers
                 
 
                 _response.result = true;
+            }
+            catch (Exception ex)
+            {
+                _response.Message = ex.Message.ToString();
+                _response.IsSuccess = false;
+            }
+            return _response;
+        }
+
+
+        [HttpPost("ApplyCoupon")]
+        public async Task<ResponseDto> ApplyCoupon([FromBody]  CartDto cartDto)
+        {
+            try
+            {
+                var CartFromDb = _db.CarHeaders.First(u => u.UserId == cartDto.CartHeader.UserId);
+                CartFromDb.CouponCode = cartDto.CartHeader.CouponCode;
+                _db.CarHeaders.Update(CartFromDb);
+                await _db.SaveChangesAsync();
+                 
+                _response.result = true;
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.Message = ex.Message.ToString();
+                _response.IsSuccess = false;
+            }
+            return _response;
+        }
+
+
+        [HttpPost("RemoveCoupon")]
+        public async Task<ResponseDto> RemoveCoupon([FromBody] CartDto cartDto)
+        {
+            try
+            {
+                var CartFromDb = _db.CarHeaders.First(u => u.UserId == cartDto.CartHeader.UserId);
+                CartFromDb.CouponCode = "";
+                _db.CarHeaders.Update(CartFromDb);
+                await _db.SaveChangesAsync();
+                _response.result = true;
+
+
             }
             catch (Exception ex)
             {
