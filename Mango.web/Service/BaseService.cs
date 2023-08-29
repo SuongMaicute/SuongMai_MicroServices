@@ -91,8 +91,16 @@ namespace Mango.web.Service
                             IsSuccess = false,
                             Message = "Internal Server Error"
                         };
-                 
-                          default:
+                    case HttpStatusCode.BadRequest:
+                        return new ResponseDto()
+                        {
+                            IsSuccess = false,
+                            Message = HttpStatusCode.BadRequest.ToString()
+                        };
+
+
+
+                    default:
                               var apiContent = await apiResponse.Content.ReadAsStringAsync();
                               var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
                           var messalo = apiResponseDto.Message;

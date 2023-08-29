@@ -35,7 +35,7 @@ namespace Suongmai.Services.ShoppingCartAPI.Controllers
         }
 
         [HttpPost("CartUpsert")]
-        public async Task<ResponseDto> CartUpsert(CartDto cartDto) 
+        public async Task<ResponseDto> CartUpsert(CartDto cartDto)
         {
             try
             {
@@ -126,7 +126,8 @@ namespace Suongmai.Services.ShoppingCartAPI.Controllers
         }
 
 
-            [HttpPost("RemoveCart")]
+            [HttpPost]
+        [Route("RemoveCart")]
         public async Task<ResponseDto> RemoveCart([FromBody]int CartDetailsId)
         {
             try
@@ -138,8 +139,9 @@ namespace Suongmai.Services.ShoppingCartAPI.Controllers
                 if (totalCount ==1) {
                     CartHeader cartHeaderRemove = await _db.CarHeaders.FirstOrDefaultAsync(u => u.CartHeaderId==cartDetail.CartHeaderId);
                     _db.CarHeaders.Remove(cartHeaderRemove);
-                   
+
                 }
+                _db.CarDeatails.Remove(cartDetail);
                 await _db.SaveChangesAsync();
                 
 
@@ -155,23 +157,20 @@ namespace Suongmai.Services.ShoppingCartAPI.Controllers
 
 
         [HttpPost("ApplyCoupon")]
-        public async Task<ResponseDto> ApplyCoupon([FromBody]  CartDto cartDto)
+        public async Task<object> ApplyCoupon([FromBody] CartDto cartDto)
         {
             try
             {
-                var CartFromDb = _db.CarHeaders.First(u => u.UserId == cartDto.CartHeader.UserId);
-                CartFromDb.CouponCode = cartDto.CartHeader.CouponCode;
-                _db.CarHeaders.Update(CartFromDb);
+                var cartFromDb = await _db.CarHeaders.FirstAsync(u => u.UserId == cartDto.CartHeader.UserId);
+                cartFromDb.CouponCode = cartDto.CartHeader.CouponCode;
+                _db.CarHeaders.Update(cartFromDb);
                 await _db.SaveChangesAsync();
-                 
                 _response.result = true;
-
-
             }
             catch (Exception ex)
             {
-                _response.Message = ex.Message.ToString();
                 _response.IsSuccess = false;
+                _response.Message = ex.ToString();
             }
             return _response;
         }

@@ -16,7 +16,7 @@ namespace Suongmai.Services.ShoppingCartAPI.Data
         public DbSet<CartDetail> CarDeatails { get; set; }
 
        
-		
+
 
     }
 
