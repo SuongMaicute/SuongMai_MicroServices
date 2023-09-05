@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Mango.MessageBus;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace Suongmai.Services.ShoppingCartAPI.Controllers
 {
     [Route("api/cart")]
     [ApiController]
+
     public class ShoppingCartAPIController : ControllerBase
     {
         private ResponseDto _response;
@@ -21,17 +23,18 @@ namespace Suongmai.Services.ShoppingCartAPI.Controllers
         private readonly CartDBContext _db;
         private IProductService _productService;
         private ICouponService _couponService;
-        /*private IConfiguration _configuration;
-        private readonly IMessageBus _messageBus;*/
+        private IConfiguration _configuration;
+        private readonly IMessageBus _messageBus;
         public ShoppingCartAPIController(CartDBContext db,IMapper mapper, IProductService productService, 
-            ICouponService coupon)
+            ICouponService coupon, IMessageBus messageBus, IConfiguration configuration)
         {
             _db = db;            
             this._response = new ResponseDto();
             _mapper = mapper;
             _productService = productService;
             _couponService = coupon;
-            
+            _messageBus = messageBus;
+            _configuration = configuration;
         }
 
         [HttpPost("CartUpsert")]
@@ -157,7 +160,7 @@ namespace Suongmai.Services.ShoppingCartAPI.Controllers
 
 
         [HttpPost("ApplyCoupon")]
-        public async Task<object> ApplyCoupon([FromBody] CartDto cartDto)
+        public async Task<ResponseDto> ApplyCoupon([FromBody] CartDto cartDto)
         {
             try
             {
@@ -171,9 +174,30 @@ namespace Suongmai.Services.ShoppingCartAPI.Controllers
             {
                 _response.IsSuccess = false;
                 _response.Message = ex.ToString();
+
             }
             return _response;
         }
+
+
+        [HttpPost("EmailCartRequest")]
+        public async Task<ResponseDto> EmailCartRequest([FromBody] CartDto cartDto)
+        {
+            try
+            {
+               await _messageBus.PublishMessage(cartDto,_configuration.GetValue<string>("TopicQueueName:EmailShoppingCartQueue") );
+
+                _response.result = true;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.ToString();
+
+            }
+            return _response;
+        }
+
 
 
         [HttpPost("RemoveCoupon")]

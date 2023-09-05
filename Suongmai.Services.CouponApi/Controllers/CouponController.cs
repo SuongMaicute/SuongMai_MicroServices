@@ -10,7 +10,7 @@ namespace Suongmai.Services.CouponApi.Controllers
 {
     [Route("api/coupon")]
     [ApiController]
-    
+    [Authorize]
     public class CouponController : ControllerBase
     {
         private readonly CouponDBContext _db;

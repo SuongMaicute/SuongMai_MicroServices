@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Suongmai.Services.ShoppingCartAPI.Util;
 using Suongmai.Services.ShoppingCartAPI.Data;
 using Suongmai.Services.ShoppingCartAPI.Extentions;
 using Suongmai.Services.ShoppingCartAPI.Service;
 using Suongmai.Services.ShoppingCartAPI.Service.IService;
 using System;
 using System.Text;
+using Mango.MessageBus;
 
 namespace Suongmai.Services.ProductAPI
 {
@@ -31,9 +33,13 @@ namespace Suongmai.Services.ProductAPI
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddScoped<IProductService, productService>();
             builder.Services.AddScoped<ICouponService, CouponService>();
-
-            builder.Services.AddHttpClient("Product", u => u.BaseAddress = new Uri(builder.Configuration["ServiceUrl:ProductAPI"]));
-            builder.Services.AddHttpClient("Coupon", u => u.BaseAddress = new Uri(builder.Configuration["ServiceUrl:CouponAPI"]));
+            builder.Services.AddScoped<IMessageBus,MessageBus>();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<SuongMaiAuthenticationHandler>();
+            builder.Services.AddHttpClient("Product", u => u.BaseAddress = 
+            new Uri(builder.Configuration["ServiceUrl:ProductAPI"])).AddHttpMessageHandler<SuongMaiAuthenticationHandler>();
+            builder.Services.AddHttpClient("Coupon", u => u.BaseAddress = 
+            new Uri(builder.Configuration["ServiceUrl:CouponAPI"])).AddHttpMessageHandler<SuongMaiAuthenticationHandler>();
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

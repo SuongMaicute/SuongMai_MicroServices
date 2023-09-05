@@ -10,6 +10,7 @@ namespace Suongmai.Services.ProductApi.Controllers
 {
     [Route("api/product")]
     [ApiController]
+    
     public class ProductController : ControllerBase
     {
         private readonly ProductDBContext _db;
