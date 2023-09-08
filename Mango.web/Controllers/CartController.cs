@@ -1,5 +1,6 @@
 ﻿using Mango.web.Models;
 using Mango.web.Service.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Newtonsoft.Json;
@@ -9,14 +10,62 @@ namespace Mango.web.Controllers
     public class CartController : Controller
     {
         private readonly ICartService _cartService;
-        public CartController( ICartService cart)
+        private readonly IOrderServices _orderService;
+        public CartController( ICartService cart, IOrderServices _orderServide)
         {
             _cartService = cart;
+            _orderService = _orderServide;
         }
+        
+        [Authorize]
         public async Task<IActionResult> Index()
         {
 
             return View( await LoadCartFormAPI());
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Confirmation(int orderID)
+        {
+
+            return View(orderID);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Checkout()
+        {
+
+            return View(await LoadCartDtoBaseOnLoggedInUser());
+        }
+
+
+        [Authorize]
+        [ActionName("CreateOrder")]
+        public async Task<IActionResult> CreateOrder(CartDto cartDto)
+        {
+            try
+            {
+
+
+                CartDto cart = await LoadCartDtoBaseOnLoggedInUser();
+                cart.CartHeader.Phone = cartDto.CartHeader.Phone;
+                cart.CartHeader.Email = cartDto.CartHeader.Email;
+                cart.CartHeader.Name = cartDto.CartHeader.Name;
+
+                ResponseDto? response = await _orderService.CreateOrderAsync(cart);
+
+                OrderHeaderDto orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.result));
+                if (response != null && response.IsSuccess)
+                {
+
+                    TempData["success"] = "Order successfully";
+
+                }
+            }catch(Exception ex)
+            {
+                TempData["error"] = "Order bug here successfully";
+            }
+            return View();
         }
 
         public async Task<IActionResult>  Remove(int cartDetailsId)

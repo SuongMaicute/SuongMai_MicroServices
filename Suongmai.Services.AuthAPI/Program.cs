@@ -1,4 +1,5 @@
 
+using Mango.MessageBus;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Suongmai.Services.AuthAPI.Data;
@@ -27,6 +28,7 @@ namespace Suongmai.Services.AuthAPI
 
             builder.Services.AddControllers();
             builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+            builder.Services.AddScoped<IMessageBus, MessageBus>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

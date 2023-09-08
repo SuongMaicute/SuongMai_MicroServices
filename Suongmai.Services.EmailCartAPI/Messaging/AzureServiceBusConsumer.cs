@@ -11,10 +11,12 @@ namespace Suongmai.Services.EmailCartAPI.Messaging
     {
         private readonly string serviceBusConnectionString;
         private readonly string emailCartQueue;
+        private readonly string registerUserQueue;
         private readonly IConfiguration _configuration;
         private readonly EmailService _emailService;
 
         private ServiceBusProcessor _emailCartProcessor;
+        private ServiceBusProcessor _registerUserProcessor;
 
         public AzureServiceBusConsumer(IConfiguration configuration, EmailService emailService)
         {
@@ -23,10 +25,12 @@ namespace Suongmai.Services.EmailCartAPI.Messaging
             serviceBusConnectionString = _configuration.GetValue<String>("ServiceBusConnectionString");
 
             emailCartQueue = _configuration.GetValue<String>("TopicAndQueueNames:EmailShoppingCartQueue");
+            registerUserQueue = _configuration.GetValue<String>("TopicAndQueueNames:RegisterUserQueue");
 
             var client = new ServiceBusClient(serviceBusConnectionString);
 
             _emailCartProcessor = client.CreateProcessor(emailCartQueue);
+            _registerUserProcessor = client.CreateProcessor(registerUserQueue);
             _emailService = emailService;
         }
 
@@ -35,6 +39,29 @@ namespace Suongmai.Services.EmailCartAPI.Messaging
             _emailCartProcessor.ProcessMessageAsync += OnEmailCartRequestReceived;
             _emailCartProcessor.ProcessErrorAsync += ErrorHandler;
             await _emailCartProcessor.StartProcessingAsync();
+
+
+            _registerUserProcessor.ProcessMessageAsync += OnUserRequestRequestReceived;
+            _registerUserProcessor.ProcessErrorAsync += ErrorHandler;
+            await _registerUserProcessor.StartProcessingAsync();
+        }
+
+        private async Task OnUserRequestRequestReceived(ProcessMessageEventArgs args)
+        {
+            //this is where u received a message
+            var message = args.Message;
+            var body = Encoding.UTF8.GetString(message.Body);
+
+            string email = JsonConvert.DeserializeObject<string>(body);
+            try
+            {
+                await _emailService.RegisterUserEmailAndLog(email);
+                await args.CompleteMessageAsync(args.Message);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         private Task ErrorHandler(ProcessErrorEventArgs args)
@@ -65,6 +92,9 @@ namespace Suongmai.Services.EmailCartAPI.Messaging
         {
             await _emailCartProcessor.StopProcessingAsync();
             await _emailCartProcessor.DisposeAsync();
+
+            await _registerUserProcessor.StopProcessingAsync();
+            await _registerUserProcessor.DisposeAsync();
         }
     }
 }

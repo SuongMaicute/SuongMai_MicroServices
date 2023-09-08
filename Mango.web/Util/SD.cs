@@ -6,8 +6,9 @@ namespace Mango.web.Util
     {
         public static string CouponAPIBase { get;set; }
         public static string ProductAPIBase { get;set; }
+        public static string OrderAPIBase { get; set; }
 
-		public static string AuthAPIBase { get; set; }
+        public static string AuthAPIBase { get; set; }
         public static string ShoppingCartAPI { get; set; }
         public const string RoleAdmin = "ADMIN";
         public const string RoleCustomer = "CUSTOMER";

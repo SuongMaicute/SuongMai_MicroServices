@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Mango.MessageBus;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Suongmai.Services.AuthAPI.Models.Dto;
@@ -11,10 +12,16 @@ namespace Suongmai.Services.AuthAPI.Controllers
     public class AuthAPI : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IMessageBus _messageBus;
+        private readonly IConfiguration _configuration;
+
         protected ResponseDto _response;
-        public AuthAPI( IAuthService _service)
+
+        public AuthAPI( IAuthService _service, IMessageBus mess, IConfiguration config)
         {
             _authService = _service;
+            _configuration = config;
+            _messageBus = mess;
             _response = new ResponseDto();
         }
 
@@ -29,6 +36,7 @@ namespace Suongmai.Services.AuthAPI.Controllers
                 _response.Message = errorMessage;
                 return BadRequest(_response);
             }
+            await _messageBus.PublishMessage(model.Email, _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue"));
             return Ok(_response);
         }
 

@@ -36,6 +36,13 @@ namespace Suongmai.Services.EmailCartAPI.Services
             await LogAndEmail(message.ToString(), cartDTO.CartHeader.Email);
         }
 
+        public async Task RegisterUserEmailAndLog(string email)
+        {
+            string message = "User registertration successful. <br/> Email: " + email;
+            await LogAndEmail(message, "suongmai@gmail.com");
+
+        }
+
         private async Task<bool> LogAndEmail(string message, string email)
         {
             try

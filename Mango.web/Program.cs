@@ -21,6 +21,7 @@ namespace Mango.web
             SD.AuthAPIBase = builder.Configuration["ServiceUrls:AuthAPI"];
             SD.ProductAPIBase = builder.Configuration["ServiceUrls:ProductAPI"];
             SD.ShoppingCartAPI = builder.Configuration["ServiceUrls:ShoppingCartAPI"];
+            SD.OrderAPIBase = builder.Configuration["ServiceUrls:OrderAPI"];
 
             // add service into each request
             builder.Services.AddScoped<ITokenProvider,TokenProvider>();
@@ -29,6 +30,7 @@ namespace Mango.web
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IOrderServices, OrderServices>();
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options=>
             {
                 options.ExpireTimeSpan = TimeSpan.FromHours(10);
