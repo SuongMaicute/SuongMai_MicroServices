@@ -43,27 +43,35 @@ namespace Mango.web.Controllers
         [ActionName("CreateOrder")]
         public async Task<IActionResult> CreateOrder(CartDto cartDto)
         {
-            try
+            CartDto cart = await LoadCartDtoBaseOnLoggedInUser();
+            cart.CartHeader.Phone = cartDto.CartHeader.Phone;
+            cart.CartHeader.Email = cartDto.CartHeader.Email;
+            cart.CartHeader.Name = cartDto.CartHeader.Name;
+
+            var response = await _orderService.CreateOrderAsync(cart);
+            OrderHeaderDto orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.result));
+
+            if (response != null && response.IsSuccess)
             {
+                //get stripe session and redirect to stripe to place order
+                //
+                var domain = Request.Scheme + "://" + Request.Host.Value + "/";
 
-
-                CartDto cart = await LoadCartDtoBaseOnLoggedInUser();
-                cart.CartHeader.Phone = cartDto.CartHeader.Phone;
-                cart.CartHeader.Email = cartDto.CartHeader.Email;
-                cart.CartHeader.Name = cartDto.CartHeader.Name;
-
-                ResponseDto? response = await _orderService.CreateOrderAsync(cart);
-
-                OrderHeaderDto orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.result));
-                if (response != null && response.IsSuccess)
+                StripeRequestDto stripeRequestDto = new()
                 {
+                    ApprovedUrl = domain + "cart/Confirmation?orderId=" + orderHeaderDto.OrderHeaderId,
+                    CancelUrl = domain + "cart/checkout",
+                    OrderHeader = orderHeaderDto
+                };
 
-                    TempData["success"] = "Order successfully";
+                var stripeResponse = await _orderService.CreateStripeSession(stripeRequestDto);
+                StripeRequestDto stripeResponseResult = JsonConvert.DeserializeObject<StripeRequestDto>
+                                            (Convert.ToString(stripeResponse.result));
+                Response.Headers.Add("Location", stripeResponseResult.StripeSessionUrl);
+                return new StatusCodeResult(303);
 
-                }
-            }catch(Exception ex)
-            {
-                TempData["error"] = "Order bug here successfully";
+
+
             }
             return View();
         }

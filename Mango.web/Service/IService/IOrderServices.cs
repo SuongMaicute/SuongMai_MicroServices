@@ -4,7 +4,7 @@ namespace Mango.web.Service.IService
 {
     public interface IOrderServices
     {
-        Task<ResponseDto> CreateOrderAsync(CartDto cartDto);
-       
+        Task<ResponseDto?> CreateOrderAsync(CartDto cartDto);
+        Task<ResponseDto?> CreateStripeSession(StripeRequestDto request);
     }
 }
