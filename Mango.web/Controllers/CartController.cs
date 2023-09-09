@@ -1,5 +1,6 @@
 ﻿using Mango.web.Models;
 using Mango.web.Service.IService;
+using Mango.web.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -27,7 +28,18 @@ namespace Mango.web.Controllers
         [Authorize]
         public async Task<IActionResult> Confirmation(int orderID)
         {
-
+            ResponseDto? response = await _orderService.ValidateStripe(orderID);
+            var alo = response.Message;
+            if (response != null && response.IsSuccess)
+            {
+                OrderHeaderDto orderHeader = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.result));
+                if(orderHeader.Status == SD.Status_Approved)
+                {
+                    return View(orderID);
+                }
+                TempData["success"] = "Payment successfully";
+                return RedirectToAction(nameof(Index));
+            }
             return View(orderID);
         }
 

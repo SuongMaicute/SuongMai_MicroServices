@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Stripe;
 using Suongmai.Services.CouponApi.Data;
 using Suongmai.Services.CouponApi.Extentions;
 using System;
@@ -66,6 +67,8 @@ namespace Suongmai.Services.CouponApi
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:secretKey").Get<string>();
 
             app.UseHttpsRedirection();
             app.UseAuthentication();

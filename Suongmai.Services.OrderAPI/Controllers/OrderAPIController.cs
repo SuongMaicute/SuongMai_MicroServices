@@ -75,8 +75,10 @@ namespace Suongmai.Services.OrderAPI.Controllers
                     CancelUrl = stripeRequestDto.CancelUrl,
                     LineItems = new List<SessionLineItemOptions>(),
                     Mode = "payment",
-
+                    
                 };
+               
+
 
                 var DiscountsObj = new List<SessionDiscountOptions>()
                 {
@@ -114,7 +116,7 @@ namespace Suongmai.Services.OrderAPI.Controllers
                 stripeRequestDto.StripeSessionUrl = session.Url;
                 OrderHeader orderHeader = _db.CarHeOrderHeadersOrderHeadersaders.First(u => u.OrderHeaderId == stripeRequestDto.OrderHeader.OrderHeaderId);
                 orderHeader.StripeSessionID = session.Id;
-                _db.SaveChanges();
+                _db.SaveChanges(); 
                 _response.result = stripeRequestDto;
 
             }
@@ -126,6 +128,43 @@ namespace Suongmai.Services.OrderAPI.Controllers
             return _response;
         }
 
+
+        [Authorize]
+        [HttpPost("ValidateStripe")]
+        public async Task<ResponseDto> ValidateStripe([FromBody]  int orderHeaderID)
+        {
+            try
+            {
+                OrderHeader orderHeader = _db.CarHeOrderHeadersOrderHeadersaders.First(
+                    u=>u.OrderHeaderId == orderHeaderID
+                    ) ;
+
+                var service = new SessionService();
+                Session session = service.Get(orderHeader.StripeSessionID);
+                
+                var peymentIntentService = new PaymentIntentService();
+                PaymentIntent paymentIntent = peymentIntentService.Get(session.PaymentIntentId);
+
+                if(paymentIntent.Status == "succeeded")
+                {
+                    // payment OK
+                    orderHeader.PaymentIntentId = paymentIntent.Id;
+                    orderHeader.Status = SD.Status_Approved;
+                    _db.SaveChanges();
+
+                    _response.result = _mapper.Map<OrderHeaderDto>(orderHeader);
+                }
+
+               
+
+            }
+            catch (Exception ex)
+            {
+                _response.Message = ex.Message;
+                _response.IsSuccess = false;
+            }
+            return _response;
+        }
 
 
     }
