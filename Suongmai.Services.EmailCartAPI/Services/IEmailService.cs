@@ -1,4 +1,5 @@
-﻿using Suongmai.Services.EmailCartAPI.Models.Dto;
+﻿using Suongmai.Services.EmailCartAPI.Message;
+using Suongmai.Services.EmailCartAPI.Models.Dto;
 
 namespace Suongmai.Services.EmailCartAPI.Services
 {
@@ -6,5 +7,6 @@ namespace Suongmai.Services.EmailCartAPI.Services
     {
         Task EmailCartAndLog(CartDto cartDTO);
         Task RegisterUserEmailAndLog(string email);
+        Task LogOrderPlaced(RewardsMessage rewardsDto);
     }
 }

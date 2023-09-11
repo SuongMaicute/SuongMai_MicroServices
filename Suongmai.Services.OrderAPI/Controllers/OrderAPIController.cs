@@ -152,6 +152,14 @@ namespace Suongmai.Services.OrderAPI.Controllers
                     orderHeader.Status = SD.Status_Approved;
                     _db.SaveChanges();
 
+                    RewardsDto reward = new() { 
+                      OrderId = orderHeader.OrderHeaderId,
+                      RewardsActivity = Convert.ToInt32(orderHeader.OrderTotal),
+                      UserId = orderHeader.UserId
+                    };
+                    string topic_name = _configuration.GetValue<string>("TopicQueueName:OrderCreatedTopic");
+                    await _messageBus.PublishMessage(reward,topic_name);
+
                     _response.result = _mapper.Map<OrderHeaderDto>(orderHeader);
                 }
 

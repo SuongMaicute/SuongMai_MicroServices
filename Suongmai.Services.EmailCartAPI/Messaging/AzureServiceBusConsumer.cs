@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Newtonsoft.Json;
+using Suongmai.Services.EmailCartAPI.Message;
 using Suongmai.Services.EmailCartAPI.Models.Dto;
 using Suongmai.Services.EmailCartAPI.Services;
 using System.Text;
@@ -15,6 +16,10 @@ namespace Suongmai.Services.EmailCartAPI.Messaging
         private readonly IConfiguration _configuration;
         private readonly EmailService _emailService;
 
+        private readonly string OrderCreated_Topic;
+        private readonly string OrderCreated_Email_Supsciption;
+        private readonly ServiceBusProcessor _emailOrderPlacedProceesor;
+
         private ServiceBusProcessor _emailCartProcessor;
         private ServiceBusProcessor _registerUserProcessor;
 
@@ -27,10 +32,14 @@ namespace Suongmai.Services.EmailCartAPI.Messaging
             emailCartQueue = _configuration.GetValue<String>("TopicAndQueueNames:EmailShoppingCartQueue");
             registerUserQueue = _configuration.GetValue<String>("TopicAndQueueNames:RegisterUserQueue");
 
+            OrderCreated_Topic = _configuration.GetValue<String>("TopicAndQueueNames:OrderCreatedTopic");
+            OrderCreated_Email_Supsciption = _configuration.GetValue<String>("TopicAndQueueNames:SubscriptionName");
+
             var client = new ServiceBusClient(serviceBusConnectionString);
 
             _emailCartProcessor = client.CreateProcessor(emailCartQueue);
             _registerUserProcessor = client.CreateProcessor(registerUserQueue);
+            _emailOrderPlacedProceesor = client.CreateProcessor(OrderCreated_Topic, OrderCreated_Email_Supsciption);
             _emailService = emailService;
         }
 
@@ -44,6 +53,27 @@ namespace Suongmai.Services.EmailCartAPI.Messaging
             _registerUserProcessor.ProcessMessageAsync += OnUserRequestRequestReceived;
             _registerUserProcessor.ProcessErrorAsync += ErrorHandler;
             await _registerUserProcessor.StartProcessingAsync();
+
+            _emailOrderPlacedProceesor.ProcessMessageAsync += OnorderPlacedRequestReceived;
+            _emailOrderPlacedProceesor.ProcessErrorAsync += ErrorHandler;
+            await _emailOrderPlacedProceesor.StartProcessingAsync();
+        }
+
+        private async Task OnorderPlacedRequestReceived(ProcessMessageEventArgs args)
+        {
+             var message = args.Message;
+            var body = Encoding.UTF8.GetString(message.Body);
+
+            RewardsMessage objMessage = JsonConvert.DeserializeObject<RewardsMessage>(body);
+            try
+            {
+                await _emailService.LogOrderPlaced(objMessage);
+                await args.CompleteMessageAsync(args.Message);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         private async Task OnUserRequestRequestReceived(ProcessMessageEventArgs args)
@@ -95,6 +125,10 @@ namespace Suongmai.Services.EmailCartAPI.Messaging
 
             await _registerUserProcessor.StopProcessingAsync();
             await _registerUserProcessor.DisposeAsync();
+
+
+            await _emailOrderPlacedProceesor.StopProcessingAsync();
+            await _emailOrderPlacedProceesor.DisposeAsync();
         }
     }
 }

@@ -5,6 +5,7 @@ using Suongmai.Services.EmailCartAPI.Models;
 using Suongmai.Services.EmailCartAPI.Models.Dto;
 using System.Text;
 using System;
+using Suongmai.Services.EmailCartAPI.Message;
 
 namespace Suongmai.Services.EmailCartAPI.Services
 {
@@ -34,6 +35,13 @@ namespace Suongmai.Services.EmailCartAPI.Services
             message.Append("</ul>");
 
             await LogAndEmail(message.ToString(), cartDTO.CartHeader.Email);
+        }
+
+        public async Task LogOrderPlaced(RewardsMessage rewardsDto)
+        {
+            string message = "New OrderPlaced <br/> Order ID : " + rewardsDto.OrderId;
+            await LogAndEmail(message, "suongmai07072003@gmail.com");
+
         }
 
         public async Task RegisterUserEmailAndLog(string email)
