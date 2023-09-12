@@ -21,23 +21,19 @@ namespace Suongmai.Services.RewardAPI.Services
         {
             try
             {
-                Reward reward = new()
+                Reward rewards = new()
                 {
                     OrderId = rewardsMessage.OrderId,
                     RewardsActivity = rewardsMessage.RewardsActivity,
                     UserId = rewardsMessage.UserId,
-                    RewardsDate = DateTime.UtcNow,
+                    RewardsDate = DateTime.Now
                 };
-
-                await using var _db = new  RewardDBContext(_dbOptions);
-                
-                await _db.Rewards.AddAsync(reward);
+                await using var _db = new RewardDBContext(_dbOptions);
+                await _db.Rewards.AddAsync(rewards);
                 await _db.SaveChangesAsync();
-               
             }
             catch (Exception ex)
             {
-
             }
         }
     }

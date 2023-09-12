@@ -9,6 +9,7 @@ using Suongmai.Services.OrderAPI.Extentions;
 using Suongmai.Services.OrderAPI.Service;
 using Suongmai.Services.OrderAPI.Service.IService;
 using Suongmai.Services.OrderAPI.Util;
+using Suongmai.Services.RewardAPI.Services;
 using Suongmai.Services.ShoppingCartAPI.Data;
 
 namespace Suongmai.Services.OrderAPI

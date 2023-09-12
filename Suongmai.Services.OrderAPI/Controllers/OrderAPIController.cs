@@ -12,6 +12,11 @@ using Suongmai.Services.OrderAPI.Util;
 using Suongmai.Services.ShoppingCartAPI.Data;
 using System;
 using System.Reflection.Metadata.Ecma335;
+using Microsoft.AspNetCore.SignalR;
+using Suongmai.Services.RewardAPI.Data;
+using Suongmai.Services.RewardAPI.Services;
+using Suongmai.Services.RewardAPI.Message;
+using Microsoft.EntityFrameworkCore;
 
 namespace Suongmai.Services.OrderAPI.Controllers
 {
@@ -36,6 +41,57 @@ namespace Suongmai.Services.OrderAPI.Controllers
             _mapper = mapper;
             _configuration = configuration;
         }
+
+        [Authorize]
+        [HttpGet("GetOrder")]
+        public ResponseDto Get(string? userID= "")
+        {
+            try
+            {
+                IEnumerable<OrderHeader> objList;
+                if (User.IsInRole(SD.RoleAdmin))
+                {
+                    objList = _db.CarHeOrderHeadersOrderHeadersaders.Include(u => u.Details).OrderByDescending(u => u.OrderHeaderId).ToList();
+
+                }
+                else
+                {
+                    objList = _db.CarHeOrderHeadersOrderHeadersaders.Include(u => u.Details).Where(u =>u.UserId ==userID).OrderByDescending(u => u.OrderHeaderId).ToList();
+
+                }
+                _response.result = _mapper.Map<IEnumerable<OrderHeaderDto>>(objList);
+
+            }
+            catch (Exception ex) { 
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+            return _response;
+        }
+
+        [Authorize]
+        [HttpGet("GetOrder/{id:int}")]
+        public ResponseDto Get(int ID)
+        {
+            try
+            {
+                OrderHeader orderHeader = _db.CarHeOrderHeadersOrderHeadersaders.Include(
+                    u => u.Details
+                    ).First(
+                    u => u.OrderHeaderId == ID
+                    );
+                _response.result = _mapper.Map<OrderHeaderDto>( orderHeader );
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+            return _response;
+        }
+
+
+
 
         [Authorize]
         [HttpPost("CreateOrder")]
@@ -150,15 +206,22 @@ namespace Suongmai.Services.OrderAPI.Controllers
                     // payment OK
                     orderHeader.PaymentIntentId = paymentIntent.Id;
                     orderHeader.Status = SD.Status_Approved;
-                    _db.SaveChanges();
 
-                    RewardsDto reward = new() { 
+                    await _db.SaveChangesAsync();
+
+                    RewardsMessage reward = new() { 
                       OrderId = orderHeader.OrderHeaderId,
                       RewardsActivity = Convert.ToInt32(orderHeader.OrderTotal),
                       UserId = orderHeader.UserId
                     };
+                    
+
+
                     string topic_name = _configuration.GetValue<string>("TopicQueueName:OrderCreatedTopic");
                     await _messageBus.PublishMessage(reward,topic_name);
+
+
+
 
                     _response.result = _mapper.Map<OrderHeaderDto>(orderHeader);
                 }
@@ -167,6 +230,38 @@ namespace Suongmai.Services.OrderAPI.Controllers
 
             }
             catch (Exception ex)
+            {
+                _response.Message = ex.Message;
+                _response.IsSuccess = false;
+            }
+            return _response;
+        }
+
+
+        [Authorize]
+        [HttpPost("UpdateOrderStatus/{orderId:int}")]
+        public async Task<ResponseDto> UpdateOrderStatus (int orderId, [FromBody] string newStatus)
+        {
+            try
+            {
+                OrderHeader orderHeader = _db.CarHeOrderHeadersOrderHeadersaders.First(u => u.OrderHeaderId == orderId);
+                if(orderHeader != null)
+                {
+                    if (newStatus == SD.Status_Cancelled)
+                    {
+                        // we will give a refund 
+                        var options = new RefundCreateOptions
+                        {
+                            Reason = RefundReasons.RequestedByCustomer,
+                            PaymentIntent = orderHeader.PaymentIntentId
+                        };
+                        var service = new RefundService();
+                        Refund refund = service.Create(options);
+                    }
+                        orderHeader.Status = newStatus;
+                    _db.SaveChanges();
+                }
+            }catch (Exception ex)
             {
                 _response.Message = ex.Message;
                 _response.IsSuccess = false;

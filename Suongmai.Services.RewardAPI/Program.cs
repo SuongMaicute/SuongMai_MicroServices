@@ -26,7 +26,7 @@ namespace Suongmai.Services.RewardAPI
             builder.Services.AddSingleton(new RewardService(optionBuilder.Options));
 
             builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
-
+            builder.Services.AddScoped<IRewardService, RewardService>();    
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

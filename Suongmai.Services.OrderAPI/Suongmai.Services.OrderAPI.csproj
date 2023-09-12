@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Mango.MessageBus\Mango.MessageBus.csproj" />
+    <ProjectReference Include="..\Suongmai.Services.RewardAPI\Suongmai.Services.RewardAPI.csproj" />
   </ItemGroup>
 
 </Project>
