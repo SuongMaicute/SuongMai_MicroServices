@@ -1,10 +1,12 @@
 ﻿using Mango.web.Models;
 using Mango.web.Service.IService;
 using Mango.web.Util;
+using Microsoft.AspNetCore.Authorization;
 using static Mango.web.Util.SD;
 
 namespace Mango.web.Service
 {
+    [Authorize]
     public class CouponService : ICouponService
     {
 

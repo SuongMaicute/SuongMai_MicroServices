@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -81,26 +82,52 @@ namespace Suongmai.Services.ProductApi.Controllers
         }
 
         [HttpPost]
-		[Authorize(Roles = "ADMIN")]
-		public ResponseDto Create([FromBody] Product ProductDto)
+        [Authorize(Roles = "ADMIN")]
+        public ResponseDto Post(ProductDto ProductDto)
         {
             try
             {
-                Product obj = _mapper.Map<Product>(ProductDto);
-               _db.Products.Add(obj);
+                Product product = _mapper.Map<Product>(ProductDto);
+                _db.Products.Add(product);
                 _db.SaveChanges();
 
-                _respone.result = obj;
-                _respone.Message = "Create successfully!!!";
+                if (ProductDto.Image != null)
+                {
+
+                    string fileName = product.ProductId + Path.GetExtension(ProductDto.Image.FileName);
+                    string filePath = @"wwwroot\ProductImages\" + fileName;
+
+                    //I have added the if condition to remove the any image with same name if that exist in the folder by any change
+                    var directoryLocation = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+                    FileInfo file = new FileInfo(directoryLocation);
+                    if (file.Exists)
+                    {
+                        file.Delete();
+                    }
+
+                    var filePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+                    using (var fileStream = new FileStream(filePathDirectory, FileMode.Create))
+                    {
+                        ProductDto.Image.CopyTo(fileStream);
+                    }
+                    var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
+                    product.ImageUrl = baseUrl + "/ProductImages/" + fileName;
+                    product.ImageLocalPath = filePath;
+                }
+                else
+                {
+                    product.ImageUrl = "https://placehold.co/600x400";
+                }
+                _db.Products.Update(product);
+                _db.SaveChanges();
+                _respone.result = _mapper.Map<ProductDto>(product);
             }
             catch (Exception ex)
             {
                 _respone.IsSuccess = false;
                 _respone.Message = ex.Message;
-
             }
             return _respone;
-
         }
 
         [HttpPut]
