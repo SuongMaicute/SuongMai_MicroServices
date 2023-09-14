@@ -43,8 +43,8 @@ namespace Suongmai.Services.OrderAPI.Controllers
         }
 
         [Authorize]
-        [HttpGet("GetOrder")]
-        public ResponseDto Get(string? userID= "")
+        [HttpPost("GetOrder")]
+        public ResponseDto Get([FromBody] string? userID)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace Suongmai.Services.OrderAPI.Controllers
         }
 
         [Authorize]
-        [HttpGet("GetOrder/{id:int}")]
+        [HttpGet("GetOrderByID/{id:int}")]
         public ResponseDto Get(int ID)
         {
             try

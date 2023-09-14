@@ -24,8 +24,8 @@ namespace Suongmai.Services.RewardAPI.Messaging
 
             serviceBusConnectionString = _configuration.GetValue<string>("ServiceBusConnectionString");
 
-            orderCreatedTopic = _configuration.GetValue<string>("TopicAndQueueNames:OrderCreatedTopic");
-            orderCreatedRewardSubscription = _configuration.GetValue<string>("TopicAndQueueNames:SubscriptionName");
+            orderCreatedTopic = _configuration.GetValue<string>("TopicQueueName:OrderCreatedTopic");
+            orderCreatedRewardSubscription = _configuration.GetValue<string>("TopicQueueName:SubscriptionName");
 
             var client = new ServiceBusClient(serviceBusConnectionString);
             _rewardProcessor = client.CreateProcessor(orderCreatedTopic, orderCreatedRewardSubscription);
@@ -39,24 +39,15 @@ namespace Suongmai.Services.RewardAPI.Messaging
 
         }
 
-
-
-        public async Task Stop()
-        {
-            await _rewardProcessor.StopProcessingAsync();
-            await _rewardProcessor.DisposeAsync();
-
-        }
-
         private async Task OnNewOrderRewardsRequestReceived(ProcessMessageEventArgs arg)
         {
+            try
+            {
             //this is where you will receive message
             var message = arg.Message;
             var body = Encoding.UTF8.GetString(message.Body);
 
             RewardsMessage objMessage = JsonConvert.DeserializeObject<RewardsMessage>(body);
-            try
-            {
                 //TODO - try to log email
                 await _rewardService.UpdateRewards(objMessage);
                 await arg.CompleteMessageAsync(arg.Message);
@@ -65,10 +56,18 @@ namespace Suongmai.Services.RewardAPI.Messaging
             {
                 throw;
             }
+        }
+
+        public async Task Stop()
+        {
+            await _rewardProcessor.StopProcessingAsync();
+            await _rewardProcessor.DisposeAsync();
 
         }
 
-        private Task ErrorHandler(ProcessErrorEventArgs args)
+        
+
+        private  Task ErrorHandler(ProcessErrorEventArgs args)
         {
             Console.WriteLine("ErrHandler................"+args.Exception.ToString());
             return Task.CompletedTask;
