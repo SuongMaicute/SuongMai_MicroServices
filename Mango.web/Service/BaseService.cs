@@ -22,101 +22,106 @@ namespace Mango.web.Service
         }
         public async Task<ResponseDto> SendAsync(RequestDto requestDto, bool withBearer = true)
         {
-            String url = requestDto.Url;
-            ApiType alo = requestDto.ApiType;
-            object data = requestDto.Data;
-            try
-            {
-                HttpClient client = _httpClientFactory.CreateClient("MangoAPI");
-                HttpRequestMessage message = new();
-                message.Headers.Add("Accept", "application/json");
-			// token 
-			if(withBearer)
-
+			try
+			{
+				HttpClient client = _httpClientFactory.CreateClient("MangoAPI");
+				HttpRequestMessage message = new();
+				if (requestDto.ContentType == ContentType.MultipartFormData)
 				{
-				var token = _tokenProvider.GetToken();
-				message.Headers.Add("Authorization", $"Bearer {token}");
+					message.Headers.Add("Accept", "*/*");
+				}
+				else
+				{
+					message.Headers.Add("Accept", "application/json");
+				}
+				//token
+				if (withBearer)
+				{
+					var token = _tokenProvider.GetToken();
+					message.Headers.Add("Authorization", $"Bearer {token}");
+				}
+
+				message.RequestUri = new Uri(requestDto.Url);
+
+				if (requestDto.ContentType == ContentType.MultipartFormData)
+				{
+					var content = new MultipartFormDataContent();
+
+					foreach (var prop in requestDto.Data.GetType().GetProperties())
+					{
+						var value = prop.GetValue(requestDto.Data);
+						if (value is FormFile)
+						{
+							var file = (FormFile)value;
+							if (file != null)
+							{
+								content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.FileName);
+							}
+						}
+						else
+						{
+							content.Add(new StringContent(value == null ? "" : value.ToString()), prop.Name);
+						}
+					}
+					message.Content = content;
+				}
+				else
+				{
+					if (requestDto.Data != null)
+					{
+						message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, "application/json");
+					}
+				}
+
+
+
+
+
+				HttpResponseMessage? apiResponse = null;
+
+				switch (requestDto.ApiType)
+				{
+					case ApiType.POST:
+						message.Method = HttpMethod.Post;
+						break;
+					case ApiType.DELETE:
+						message.Method = HttpMethod.Delete;
+						break;
+					case ApiType.PUT:
+						message.Method = HttpMethod.Put;
+						break;
+					default:
+						message.Method = HttpMethod.Get;
+						break;
+				}
+
+				apiResponse = await client.SendAsync(message);
+
+				switch (apiResponse.StatusCode)
+				{
+					case HttpStatusCode.NotFound:
+						return new() { IsSuccess = false, Message = "Not Found" };
+					case HttpStatusCode.Forbidden:
+						return new() { IsSuccess = false, Message = "Access Denied" };
+					case HttpStatusCode.Unauthorized:
+						return new() { IsSuccess = false, Message = "Unauthorized" };
+					case HttpStatusCode.InternalServerError:
+						return new() { IsSuccess = false, Message = "Internal Server Error" };
+					default:
+						var apiContent = await apiResponse.Content.ReadAsStringAsync();
+						var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
+						return apiResponseDto;
+				}
 			}
-
-
-			message.RequestUri = new Uri(requestDto.Url);
-                if (requestDto.Data != null)
-                {
-                    message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, "application/json");
-
-                }
-
-                HttpResponseMessage? apiResponse = new HttpResponseMessage();
-                switch (requestDto.ApiType)
-                {
-                    case ApiType.DELETE:
-                        message.Method = HttpMethod.Delete;
-                        break;
-                    case ApiType.POST:
-                        message.Method = HttpMethod.Post;
-                        break;
-                    case ApiType.PUT:
-                        message.Method = HttpMethod.Put;
-                        break;
-                    default:
-                        message.Method = HttpMethod.Get;
-                        break;
-
-                }
-                
-                apiResponse = await client.SendAsync(message);
-                switch (apiResponse.StatusCode)
-                {
-                    case HttpStatusCode.NotFound:
-                        return new ResponseDto()
-                        {
-                            IsSuccess = false,
-                            Message = "Not Found"
-                        };
-                    case HttpStatusCode.Forbidden:
-                        return new ResponseDto()
-                        {
-                            IsSuccess = false,
-                            Message = "Access Denied"
-                        };
-                    case HttpStatusCode.Unauthorized:
-                        return new ResponseDto()
-                        {
-                            IsSuccess = false,
-                            Message = " Unauthorized Access"
-                        };
-                    case HttpStatusCode.InternalServerError:
-                        return new ResponseDto()
-                        {
-                            IsSuccess = false,
-                            Message = "Internal Server Error"
-                        };
-                    case HttpStatusCode.BadRequest:
-                        return new ResponseDto()
-                        {
-                            IsSuccess = false,
-                            Message = HttpStatusCode.BadRequest.ToString()
-                        };
-
-
-
-                    default:
-                              var apiContent = await apiResponse.Content.ReadAsStringAsync();
-                              var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
-                          var messalo = apiResponseDto.Message;
-                          var status = apiResponseDto.IsSuccess;
-                          var dataInrespone = apiResponseDto.result;
-                        
-                        return apiResponseDto;
-                }
-            }catch(Exception e)
-            {
-                return new ResponseDto()
-                {
-                    Message = e.Message,
-                    IsSuccess = false
-                };
-            }
-        }
-    }
+			catch (Exception ex)
+			{
+				var dto = new ResponseDto
+				{
+					Message = ex.Message.ToString(),
+					IsSuccess = false
+				};
+				return dto;
+			}
+		}
+	}
 }
