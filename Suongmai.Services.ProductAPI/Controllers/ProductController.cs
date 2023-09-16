@@ -83,7 +83,7 @@ namespace Suongmai.Services.ProductApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = "ADMIN")]
-        public ResponseDto Post(ProductDto ProductDto)
+        public ResponseDto Post( [FromForm] ProductDto ProductDto)
         {
             try
             {
@@ -100,10 +100,10 @@ namespace Suongmai.Services.ProductApi.Controllers
                     //I have added the if condition to remove the any image with same name if that exist in the folder by any change
                     var directoryLocation = Path.Combine(Directory.GetCurrentDirectory(), filePath);
                     FileInfo file = new FileInfo(directoryLocation);
-                    if (file.Exists)
+                   /* if (file.Exists)
                     {
-                        file.Delete();
-                    }
+                        file.Delete();s
+                    */
 
                     var filePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
                     using (var fileStream = new FileStream(filePathDirectory, FileMode.Create))
@@ -132,15 +132,54 @@ namespace Suongmai.Services.ProductApi.Controllers
 
         [HttpPut]
 		[Authorize(Roles = "ADMIN")]
-		public ResponseDto update([FromBody] ProductDto ProductDto)
+		public ResponseDto update([FromForm] ProductDto productDto)
         {
             try
             {
-                Product obj = _mapper.Map<Product>(ProductDto);
-                _db.Products.Update(obj);
+                Product product = _mapper.Map<Product>(productDto);
+
+
+				if (productDto.Image != null)
+				{
+					//delete the old file 
+					if (!string.IsNullOrEmpty(product.ImageLocalPath))
+					{
+						var oldPath = Path.Combine(Directory.GetCurrentDirectory(), product.ImageLocalPath);
+						FileInfo fileDelete = new FileInfo(oldPath);
+						if (fileDelete.Exists)
+						{
+							fileDelete.Delete();
+						}
+					}
+
+
+
+					string fileName = product.ProductId + Path.GetExtension(productDto.Image.FileName);
+					string filePath = @"wwwroot\ProductImages\" + fileName;
+
+					//I have added the if condition to remove the any image with same name if that exist in the folder by any change
+					var directoryLocation = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+					FileInfo file = new FileInfo(directoryLocation);
+					
+					var filePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+					using (var fileStream = new FileStream(filePathDirectory, FileMode.Create))
+					{
+						productDto.Image.CopyTo(fileStream);
+					}
+					var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
+					productDto.ImageUrl = baseUrl + "/ProductImages/" + fileName;
+					productDto.ImageLocalPath = filePath;
+				}
+				
+
+
+
+
+
+				_db.Products.Update(product);
                 _db.SaveChanges();
 
-                _respone.result = obj;
+                _respone.result = product;
                 _respone.Message = "Update successfully!!!";
             }
             catch (Exception ex)
@@ -161,6 +200,18 @@ namespace Suongmai.Services.ProductApi.Controllers
             try
             {
                 Product obj = _db.Products.First(o => o.ProductId == id);
+                if(!string.IsNullOrEmpty(obj.ImageLocalPath))
+                {
+                    var oldPath = Path.Combine(Directory.GetCurrentDirectory(), obj.ImageLocalPath);
+                    FileInfo file = new FileInfo(oldPath);
+                    if (file.Exists)
+                    {
+                        file.Delete();
+                    }
+                }
+
+
+
                 _respone.result = _mapper.Map<ProductDto>(obj);
 
                 _db.Products.Remove(obj);

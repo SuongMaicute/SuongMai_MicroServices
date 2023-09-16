@@ -28,6 +28,7 @@ namespace Mango.web.Service
 				HttpRequestMessage message = new();
 				if (requestDto.ContentType == ContentType.MultipartFormData)
 				{
+					//message.Headers.Add("Accept", "multipart/form-data");
 					message.Headers.Add("Accept", "*/*");
 				}
 				else
@@ -107,6 +108,8 @@ namespace Mango.web.Service
 						return new() { IsSuccess = false, Message = "Unauthorized" };
 					case HttpStatusCode.InternalServerError:
 						return new() { IsSuccess = false, Message = "Internal Server Error" };
+					case HttpStatusCode.UnsupportedMediaType:
+						return new() { IsSuccess = false, Message = "Unsupported media type!!!!" };
 					default:
 						var apiContent = await apiResponse.Content.ReadAsStringAsync();
 						var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
