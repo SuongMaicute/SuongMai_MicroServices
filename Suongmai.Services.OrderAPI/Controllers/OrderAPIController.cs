@@ -12,10 +12,10 @@ using Suongmai.Services.OrderAPI.Util;
 using Suongmai.Services.ShoppingCartAPI.Data;
 using System;
 using System.Reflection.Metadata.Ecma335;
-using Microsoft.AspNetCore.SignalR;
-using Suongmai.Services.RewardAPI.Data;
-using Suongmai.Services.RewardAPI.Services;
-using Suongmai.Services.RewardAPI.Message;
+//using Microsoft.AspNetCore.SignalR;
+//using Suongmai.Services.RewardAPI.Data;
+//using Suongmai.Services.RewardAPI.Services;
+//using Suongmai.Services.RewardAPI.Message;
 using Microsoft.EntityFrameworkCore;
 
 namespace Suongmai.Services.OrderAPI.Controllers
@@ -209,7 +209,7 @@ namespace Suongmai.Services.OrderAPI.Controllers
 
                     await _db.SaveChangesAsync();
 
-                    RewardsMessage reward = new() { 
+                    RewardsDto reward = new() { 
                       OrderId = orderHeader.OrderHeaderId,
                       RewardsActivity = Convert.ToInt32(orderHeader.OrderTotal),
                       UserId = orderHeader.UserId

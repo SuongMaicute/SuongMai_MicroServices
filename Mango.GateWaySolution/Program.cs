@@ -6,7 +6,15 @@ var builder = WebApplication.CreateBuilder(args);
 // add authentication to ocelot
 builder.AppAuthentication();
 // add ocelot.json file 
-builder.Configuration.AddJsonFile("Ocelot.json", optional: false, reloadOnChange: true);
+if (builder.Environment.EnvironmentName.ToString().ToLower().Equals("production"))
+{
+    builder.Configuration.AddJsonFile("Ocelot.Production.json", optional: false, reloadOnChange: true);
+}
+else
+{
+    builder.Configuration.AddJsonFile("Ocelot.json", optional: false, reloadOnChange: true);
+}
+
 builder.Services.AddOcelot(builder.Configuration);
 
 

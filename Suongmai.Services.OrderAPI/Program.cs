@@ -9,7 +9,6 @@ using Suongmai.Services.OrderAPI.Extentions;
 using Suongmai.Services.OrderAPI.Service;
 using Suongmai.Services.OrderAPI.Service.IService;
 using Suongmai.Services.OrderAPI.Util;
-using Suongmai.Services.RewardAPI.Services;
 using Suongmai.Services.ShoppingCartAPI.Data;
 
 namespace Suongmai.Services.OrderAPI
@@ -70,11 +69,15 @@ namespace Suongmai.Services.OrderAPI
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                if (!app.Environment.IsDevelopment())
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Order API");
+                    c.RoutePrefix = string.Empty;
+                }
+            });
             StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:secretKey").Get<string>();
 
             app.UseHttpsRedirection();
