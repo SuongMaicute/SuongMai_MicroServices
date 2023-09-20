@@ -22,7 +22,7 @@ namespace Suongmai.Services.EmailCartAPI
             var optionBuilder = new DbContextOptionsBuilder<EmailDBContext>();
             optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("MyDB"));
             builder.Services.AddSingleton(new EmailService(optionBuilder.Options));
-
+            builder.Services.AddHostedService<RabbitMQAuthConsumer>();
             builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

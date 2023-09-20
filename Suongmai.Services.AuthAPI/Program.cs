@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Suongmai.Services.AuthAPI.Data;
 using Suongmai.Services.AuthAPI.Models;
+using Suongmai.Services.AuthAPI.RabbitMQSender;
 using Suongmai.Services.AuthAPI.Service;
 using Suongmai.Services.AuthAPI.Service.IService;
 using System;
@@ -28,7 +29,7 @@ namespace Suongmai.Services.AuthAPI
 
             builder.Services.AddControllers();
             builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-            builder.Services.AddScoped<IMessageBus, MessageBus>();
+            builder.Services.AddScoped<IRabbbitIMAuthMessageSender, RabbbitIMAuthMessageSender>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

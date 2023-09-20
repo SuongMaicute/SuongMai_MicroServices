@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Suongmai.Services.AuthAPI.Models.Dto;
+using Suongmai.Services.AuthAPI.RabbitMQSender;
 using Suongmai.Services.AuthAPI.Service.IService;
 
 namespace Suongmai.Services.AuthAPI.Controllers
@@ -12,12 +13,12 @@ namespace Suongmai.Services.AuthAPI.Controllers
     public class AuthAPI : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly IMessageBus _messageBus;
+        private readonly IRabbbitIMAuthMessageSender _messageBus;
         private readonly IConfiguration _configuration;
 
         protected ResponseDto _response;
 
-        public AuthAPI( IAuthService _service, IMessageBus mess, IConfiguration config)
+        public AuthAPI( IAuthService _service, IRabbbitIMAuthMessageSender mess, IConfiguration config)
         {
             _authService = _service;
             _configuration = config;
@@ -36,7 +37,7 @@ namespace Suongmai.Services.AuthAPI.Controllers
                 _response.Message = errorMessage;
                 return BadRequest(_response);
             }
-            await _messageBus.PublishMessage(model.Email, _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue"));
+             _messageBus.SendMessage(model.Email, _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue"));
             return Ok(_response);
         }
 

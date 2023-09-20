@@ -34,6 +34,7 @@ namespace Suongmai.Services.ProductAPI
             builder.Services.AddScoped<IProductService, productService>();
             builder.Services.AddScoped<ICouponService, CouponService>();
             builder.Services.AddScoped<IMessageBus,MessageBus>();
+
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<SuongMaiAuthenticationHandler>();
             builder.Services.AddHttpClient("Product", u => u.BaseAddress = 
