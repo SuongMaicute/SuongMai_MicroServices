@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Stripe;
 using Suongmai.Services.OrderAPI.Extentions;
+using Suongmai.Services.OrderAPI.RabbitMQSender;
 using Suongmai.Services.OrderAPI.Service;
 using Suongmai.Services.OrderAPI.Service.IService;
 using Suongmai.Services.OrderAPI.Util;
@@ -30,7 +31,7 @@ namespace Suongmai.Services.OrderAPI
             builder.Services.AddSingleton(mapper);
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddScoped<IProductService, productService>();
-            builder.Services.AddScoped<IMessageBus, MessageBus>();
+            builder.Services.AddScoped<IRabbbitIMOrderMessageSender, RabbbitIMOrderMessageSender>();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<SuongMaiAuthenticationHandler>();
             builder.Services.AddHttpClient("Product", u => u.BaseAddress =

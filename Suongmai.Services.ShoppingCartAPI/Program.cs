@@ -12,6 +12,7 @@ using Suongmai.Services.ShoppingCartAPI.Service.IService;
 using System;
 using System.Text;
 using Mango.MessageBus;
+using Suongmai.Services.ShoppingCartAPI.RabbitMQSender;
 
 namespace Suongmai.Services.ProductAPI
 {
@@ -33,7 +34,7 @@ namespace Suongmai.Services.ProductAPI
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddScoped<IProductService, productService>();
             builder.Services.AddScoped<ICouponService, CouponService>();
-            builder.Services.AddScoped<IMessageBus,MessageBus>();
+            builder.Services.AddScoped<IRabbbitIMCartMessageSender,RabbbitIMCartMessageSender>();
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<SuongMaiAuthenticationHandler>();

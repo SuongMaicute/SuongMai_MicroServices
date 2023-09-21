@@ -10,13 +10,8 @@ using Suongmai.Services.OrderAPI.Models.Dto;
 using Suongmai.Services.OrderAPI.Service.IService;
 using Suongmai.Services.OrderAPI.Util;
 using Suongmai.Services.ShoppingCartAPI.Data;
-using System;
-using System.Reflection.Metadata.Ecma335;
-//using Microsoft.AspNetCore.SignalR;
-//using Suongmai.Services.RewardAPI.Data;
-//using Suongmai.Services.RewardAPI.Services;
-//using Suongmai.Services.RewardAPI.Message;
 using Microsoft.EntityFrameworkCore;
+using Suongmai.Services.OrderAPI.RabbitMQSender;
 
 namespace Suongmai.Services.OrderAPI.Controllers
 {
@@ -28,11 +23,11 @@ namespace Suongmai.Services.OrderAPI.Controllers
         private IMapper _mapper;
         private readonly OrderDBContext _db;
         private IProductService _productService;
-        private readonly IMessageBus _messageBus;
+        private readonly IRabbbitIMOrderMessageSender _messageBus;
         private readonly IConfiguration _configuration;
         public OrderAPIController(OrderDBContext db,
             IProductService productService, IMapper mapper, IConfiguration configuration
-            , IMessageBus messageBus)
+            , IRabbbitIMOrderMessageSender messageBus)
         {
             _db = db;
             _messageBus = messageBus;
@@ -218,7 +213,7 @@ namespace Suongmai.Services.OrderAPI.Controllers
 
 
                     string topic_name = _configuration.GetValue<string>("TopicQueueName:OrderCreatedTopic");
-                    await _messageBus.PublishMessage(reward,topic_name);
+                     _messageBus.SendMessage(reward,topic_name);
 
 
 

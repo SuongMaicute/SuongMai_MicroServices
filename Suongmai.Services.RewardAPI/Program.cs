@@ -24,6 +24,7 @@ namespace Suongmai.Services.RewardAPI
             var optionBuilder = new DbContextOptionsBuilder<RewardDBContext>();
             optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("MyDB"));
             builder.Services.AddSingleton(new RewardService(optionBuilder.Options));
+            builder.Services.AddHostedService<RabbitMQCartConsumer>();
 
             builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
             builder.Services.AddScoped<IRewardService, RewardService>();    

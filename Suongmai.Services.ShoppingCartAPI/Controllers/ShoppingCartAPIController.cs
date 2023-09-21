@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Suongmai.Services.ShoppingCartAPI.Data;
 using Suongmai.Services.ShoppingCartAPI.Models;
 using Suongmai.Services.ShoppingCartAPI.Models.Dto;
+using Suongmai.Services.ShoppingCartAPI.RabbitMQSender;
 using Suongmai.Services.ShoppingCartAPI.Service.IService;
 using System;
 using System.Globalization;
@@ -24,9 +25,9 @@ namespace Suongmai.Services.ShoppingCartAPI.Controllers
         private IProductService _productService;
         private ICouponService _couponService;
         private IConfiguration _configuration;
-        private readonly IMessageBus _messageBus;
+        private readonly IRabbbitIMCartMessageSender _messageBus;
         public ShoppingCartAPIController(CartDBContext db,IMapper mapper, IProductService productService, 
-            ICouponService coupon, IMessageBus messageBus, IConfiguration configuration)
+            ICouponService coupon, IRabbbitIMCartMessageSender messageBus, IConfiguration configuration)
         {
             _db = db;            
             this._response = new ResponseDto();
@@ -185,7 +186,7 @@ namespace Suongmai.Services.ShoppingCartAPI.Controllers
         {
             try
             {
-               await _messageBus.PublishMessage(cartDto,_configuration.GetValue<string>("TopicQueueName:EmailShoppingCartQueue") );
+                _messageBus.SendMessage(cartDto,_configuration.GetValue<string>("TopicQueueName:EmailShoppingCartQueue") );
 
                 _response.result = true;
             }
