@@ -2,7 +2,7 @@
 
 This is project help me to understand how to implement Microservices in C# project
 ********************
-Requeriment: Visual Code 2022 with .net 7, MySql 2019, Azure subscription and RabbitMQ (Important!!!) or later.
+Requeriment: Visual Code 2022 with .net 7, MySql 2019, Azure subscription (Important!!!) or later.
 ********************
 Architecture: 
 - Front end: Using ASP.NET MVC, Remote Proceduce Call(RPC) to call API
